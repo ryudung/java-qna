@@ -14,9 +14,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.validation.constraints.Size;
 
+import codesquad.CannotDeleteException;
+import codesquad.UnAuthenticationException;
+import codesquad.UnAuthorizedException;
 import org.hibernate.annotations.Where;
 
 import codesquad.dto.QuestionDto;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.ObjectUtils;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
@@ -68,6 +73,21 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     public void addAnswer(Answer answer) {
         answer.toQuestion(this);
         answers.add(answer);
+    }
+
+    public void delete(User loginUser) throws CannotDeleteException {
+        if(!isOwner(loginUser)){
+            throw new CannotDeleteException("지울 수 있는 권한이 없습니다.");
+        }
+        this.deleted = true;
+    }
+
+    public void update(User loginUser, Question question) throws UnAuthenticationException {
+        if(!isOwner(loginUser)){
+            throw new UnAuthenticationException();
+        }
+        this.title = question.title;
+        this.contents = question.contents;
     }
 
     public boolean isOwner(User loginUser) {

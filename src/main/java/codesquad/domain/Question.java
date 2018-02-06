@@ -2,6 +2,7 @@ package codesquad.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -105,6 +106,19 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 
     public QuestionDto toQuestionDto() {
         return new QuestionDto(getId(), this.title, this.contents);
+    }
+
+
+    public boolean isContentsEquals(Object o) {
+        Question question = (Question) o;
+        return Objects.equals(title, question.title) &&
+                Objects.equals(contents, question.contents);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(super.hashCode(), title, contents);
     }
 
     @Override

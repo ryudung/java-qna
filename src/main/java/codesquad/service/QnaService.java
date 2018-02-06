@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -42,7 +43,8 @@ public class QnaService {
         return questionRepository.findOne(id);
     }
 
-    public Question update(User loginUser, long id, QuestionDto questionDto) throws UnAuthenticationException {
+    @Transactional
+    public void update(User loginUser, long id, QuestionDto questionDto) throws UnAuthenticationException {
         Question question = questionRepository.findOne(id);
 
         if(ObjectUtils.isEmpty(question)){
@@ -50,7 +52,6 @@ public class QnaService {
         }
 
         question.update(loginUser, questionDto.toQuestion());
-        return questionRepository.save(question);
     }
 
     @Transactional
@@ -62,8 +63,6 @@ public class QnaService {
         }
 
         question.delete(loginUser);
-
-        questionRepository.delete(questionId);
     }
 
     public Iterable<Question> findAll() {

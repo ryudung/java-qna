@@ -22,41 +22,41 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
     QuestionRepository questionRepository;
 
     @Test
-    public void write_success(){
+    public void write_success() {
         User loginUser = defaultUser();
-
+        Question newQuestion = new Question("aaaa","aaa");
         HttpEntity<MultiValueMap<String, Object>> request
                 = HtmlFormDataBuilder
                 .urlEncodedForm()
-                .addParameter("title", "aaaa")
-                .addParameter("contents", "aaa")
+                .addParameter("title", newQuestion.getTitle())
+                .addParameter("contents", newQuestion.getContents())
                 .build();
 
         ResponseEntity<String> response = basicAuthTemplate(loginUser)
-                                            .postForEntity("/qna/write", request, String.class);
+                .postForEntity("/questions", request, String.class);
 
         Question question = questionRepository.findOne(3L);
 
         assertThat(response.getStatusCode(), is(HttpStatus.FOUND));
         assertNotNull(question);
-        assertThat(question.getTitle(), is("aaaa"));
-        assertThat(question.getContents(), is("aaa"));
+        assertThat(question.isContentsEquals(newQuestion), is(true));
         assertThat(response.getHeaders().getLocation().getPath(), is("/"));
     }
 
     @Test
-    public void update_login(){
+    public void update_login() {
         User loginUser = defaultUser();
 
         HttpEntity<MultiValueMap<String, Object>> request
                 = HtmlFormDataBuilder
                 .urlEncodedForm()
+                .addParameter("_method", "PUT")
                 .addParameter("title", "bbbb")
                 .addParameter("contents", "bbb")
                 .build();
 
         ResponseEntity<String> response = basicAuthTemplate(loginUser)
-                .postForEntity(String.format("/qna/update/%d", 1), request, String.class);
+                .postForEntity(String.format("/questions/%d", 1), request, String.class);
 
         Question question = questionRepository.findOne(1L);
         assertThat(response.getStatusCode(), is(HttpStatus.FOUND));
@@ -69,31 +69,37 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
 
 
     @Test
-    public void update_no_login() throws UnAuthorizedException{
+    public void update_no_login() throws UnAuthorizedException {
         User loginUser = defaultUser();
 
         HttpEntity<MultiValueMap<String, Object>> request
                 = HtmlFormDataBuilder
                 .urlEncodedForm()
+                .addParameter("_method", "PUT")
                 .addParameter("title", "bbbb")
                 .addParameter("contents", "bbb")
                 .build();
 
-        ResponseEntity<String> response=basicAuthTemplate(loginUser)
-                .postForEntity(String.format("/qna/update/%d", 2), request, String.class);
+        ResponseEntity<String> response = basicAuthTemplate(loginUser)
+                .postForEntity(String.format("/questions/%d", 2), request, String.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
     @Test
-    public void delete(){
+    public void delete() {
         User loginUser = defaultUser();
+        HttpEntity<MultiValueMap<String, Object>> request
+                = HtmlFormDataBuilder
+                .urlEncodedForm()
+                .addParameter("_method", "delete")
+                .build();
 
         ResponseEntity<String> response
                 = basicAuthTemplate(loginUser)
-                .getForEntity(String.format("/qna/delete/%d", 1), String.class);
+                .postForEntity(String.format("/questions/%d", 1), request, String.class);
 
-        assertThat(response.getStatusCode(), is(HttpStatus.OK));
-        assertNull(questionRepository.findOne(1L));
+        assertThat(response.getStatusCode(), is(HttpStatus.FOUND));
+        assertThat(questionRepository.findOne(1L).isDeleted(),is(true));
     }
 }

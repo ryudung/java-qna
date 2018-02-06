@@ -12,7 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/qna")
+@RequestMapping("/questions")
 public class QuestionController {
 
     @Autowired
@@ -23,15 +23,15 @@ public class QuestionController {
             Model model
             , @PathVariable Long id){
         model.addAttribute("question", qnaService.findById(id));
-        return "qna/show";
+        return "questions/show";
     }
 
     @GetMapping("/writeForm")
     public String write_form(){
-        return "qna/form";
+        return "questions/form";
     }
 
-    @PostMapping("/write")
+    @PostMapping
     public String write(
             @LoginUser User user
             , QuestionDto questionDto){
@@ -39,14 +39,14 @@ public class QuestionController {
         return "redirect:/";
     }
 
-    @GetMapping("/updateForm/{id}")
+    @GetMapping("/{id}/updateForm")
     public String update_form(Model model
             , @PathVariable("id") long id){
         model.addAttribute("question", qnaService.findById(id));
-        return "qna/updateForm";
+        return "questions/updateForm";
     }
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/{id}")
     public String update(@LoginUser User user
             , @PathVariable("id") long id
             , QuestionDto questionDto) throws UnAuthenticationException {
@@ -56,7 +56,7 @@ public class QuestionController {
         return "redirect:/";
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public String delete(
             @LoginUser User user
             , @PathVariable("id") long id) throws CannotDeleteException {

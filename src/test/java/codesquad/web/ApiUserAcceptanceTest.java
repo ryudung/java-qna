@@ -17,7 +17,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void create() throws Exception {
         UserDto newUser = createUserDto("testuser1");
-        String location = this.createResource("/api/users", newUser);
+        String location = this.createResourceNoLogin("/api/users", newUser);
         
         UserDto dbUser = basicAuthTemplate(findByUserId(newUser.getUserId())).getForObject(location, UserDto.class);
         assertThat(dbUser, is(newUser));
@@ -27,7 +27,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     public void show_다른_사람() throws Exception {
         UserDto newUser = createUserDto("testuser2");
 
-        String location = this.createResource("/api/users", newUser);
+        String location = this.createResourceNoLogin("/api/users", newUser);
 
         ResponseEntity<String> response = basicAuthTemplate(defaultUser()).getForEntity(location, String.class);
         assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
@@ -40,7 +40,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void update() throws Exception {
         UserDto newUser = createUserDto("testuser3");
-        String location = this.createResource("/api/users", newUser);
+        String location = this.createResourceNoLogin("/api/users", newUser);
         
         User loginUser = findByUserId(newUser.getUserId());
         UserDto updateUser = new UserDto(newUser.getUserId(), "password", "name2", "javajigi@slipp.net2");
@@ -53,7 +53,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void update_다른_사람() throws Exception {
         UserDto newUser = createUserDto("testuser4");
-        String location = this.createResource("/api/users", newUser);
+        String location = this.createResourceNoLogin("/api/users", newUser);
 
         User loginUser = findByUserId("testuser4");
         UserDto updateUser = new UserDto(newUser.getUserId(), "password", "name2", "javajigi@slipp.net2");
@@ -61,15 +61,5 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
 
         UserDto dbUser = this.getResource(location, UserDto.class, loginUser);
         assertThat(dbUser, is(newUser));
-    }
-
-    protected String createResource(String path, Object bodyPayload) {
-        ResponseEntity<String> response = template().postForEntity(path, bodyPayload, String.class);
-        assertThat(response.getStatusCode(), Is.is(HttpStatus.CREATED));
-        return response.getHeaders().getLocation().getPath();
-    }
-
-    protected <T> T getResource(String location, Class<T> responseType, User loginUser) {
-        return basicAuthTemplate(loginUser).getForObject(location, responseType);
     }
 }

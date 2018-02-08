@@ -3,8 +3,6 @@ package codesquad.web;
 import codesquad.domain.Answer;
 import codesquad.domain.User;
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import support.test.AcceptanceTest;
 
 import static org.hamcrest.core.Is.is;
@@ -46,13 +44,5 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest{
 
     }
 
-    protected String createResource(String path, Object bodyPayload, User loginUser) {
-        ResponseEntity<String> response = basicAuthTemplate(loginUser).postForEntity(path, bodyPayload, String.class);
-        assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
-        return response.getHeaders().getLocation().getPath();
-    }
 
-    protected <T> T getResource(String location, Class<T> responseType, User loginUser) {
-        return basicAuthTemplate(loginUser).getForObject(location, responseType);
-    }
 }

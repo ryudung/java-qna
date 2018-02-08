@@ -22,7 +22,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
 
         QuestionDto questionDto = new QuestionDto(0, "타이틀", "컨텐츠");
 
-        String location = this.createResource("/api/answers/", questionDto, loginUser);
+        String location = this.createResource("/api/questions/", questionDto, loginUser);
 
         Question question1 = this.getResource(location, Question.class, loginUser);
 
@@ -37,7 +37,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
         QuestionDto questionDto = new QuestionDto(0, "타이틀", "컨텐츠");
         QuestionDto questionDto2 = new QuestionDto(0, "타이틀2", "컨텐츠2");
 
-        String location = this.createResource("/api/answers/", questionDto, loginUser);
+        String location = this.createResource("/api/questions/", questionDto, loginUser);
 
         basicAuthTemplate(loginUser).put(location, questionDto2);
 

@@ -1,17 +1,30 @@
 package codesquad.domain;
 
-import codesquad.CannotDeleteException;
-import codesquad.UnAuthenticationException;
-import codesquad.dto.QuestionDto;
-import org.hibernate.annotations.Where;
-import support.domain.AbstractEntity;
-import support.domain.UrlGeneratable;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
+import javax.validation.constraints.Size;
+
+import codesquad.CannotDeleteException;
+import codesquad.UnAuthenticationException;
+import codesquad.UnAuthorizedException;
+import org.hibernate.annotations.Where;
+
+import codesquad.dto.QuestionDto;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.ObjectUtils;
+import support.domain.AbstractEntity;
+import support.domain.UrlGeneratable;
 
 @Entity
 public class Question extends AbstractEntity implements UrlGeneratable {
@@ -58,25 +71,20 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         this.writer = loginUser;
     }
 
-    public List<Answer> getAnswers() {
-        return answers;
-    }
-
-    public Answer addAnswer(Answer answer) {
+    public void addAnswer(Answer answer) {
         answer.toQuestion(this);
         answers.add(answer);
-        return answer;
     }
 
     public void delete(User loginUser) throws CannotDeleteException {
-        if (!isOwner(loginUser)) {
+        if(!isOwner(loginUser)){
             throw new CannotDeleteException("지울 수 있는 권한이 없습니다.");
         }
         this.deleted = true;
     }
 
     public void update(User loginUser, Question question) throws UnAuthenticationException {
-        if (!isOwner(loginUser)) {
+        if(!isOwner(loginUser)){
             throw new UnAuthenticationException();
         }
         this.title = question.title;
